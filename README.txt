@@ -128,12 +128,5 @@ pela API Sentinel-2 nem deve receber credenciais reais.
 
 
 
-git init
-git add .
-git commit -m "first commit"
-git branch -M main
-git remote add origin https://github.com/MANUELNGANGAFERREIRA/agrovision.git
-git push -u origin main
-
 
 
