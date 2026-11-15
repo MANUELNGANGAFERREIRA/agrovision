@@ -127,6 +127,3 @@ config.js — mantém apenas o marcador de token fictício anterior; não é usa
 pela API Sentinel-2 nem deve receber credenciais reais.
 
 
-
-
-
