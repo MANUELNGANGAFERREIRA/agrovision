@@ -1,0 +1,180 @@
+<!doctype html>
+<html lang="pt-AO">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#102b20">
+  <title>AgroVision Angola | Inteligência agrícola</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar" id="sidebar">
+      <a class="brand" href="#" data-page="overview">
+        <span class="brand-mark"><svg viewBox="0 0 40 40" aria-hidden="true"><path d="M20 34V16M20 23C8 23 7 13 7 8c9 0 16 4 13 15Zm0-4C20 9 27 5 34 5c1 10-4 16-14 14Z" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+        <span><strong>AgroVision</strong><small>ANGOLA</small></span>
+      </a>
+      <div class="farm-switch"><span class="farm-avatar">MF</span><span><b>Minha Fazenda</b><small>Exploração de demonstração</small></span><span class="chevron">⌄</span></div>
+      <div class="nav-label">ESPAÇO AGRÍCOLA</div>
+      <nav class="main-nav">
+        <button class="nav-item active" data-page="overview"><span>▦</span> Visão geral</button>
+        <button class="nav-item" data-page="map"><span>⌖</span> Mapa inteligente</button>
+        <button class="nav-item" data-page="fields"><span>▧</span> Os meus talhões</button>
+        <button class="nav-item" data-page="monitoring"><span>◉</span> Monitorização</button>
+        <button class="nav-item" data-page="simulator"><span>⌁</span> Simulador de culturas</button>
+        <button class="nav-item" data-page="campaigns"><span>▤</span> Campanhas agrícolas</button>
+      </nav>
+      <div class="nav-label">INTELIGÊNCIA</div>
+      <nav class="main-nav">
+        <button class="nav-item" data-page="assistant"><span>✳</span> Assistente agrícola</button>
+        <button class="nav-item" data-page="reports"><span>▥</span> Relatórios</button>
+      </nav>
+      <div class="sidebar-bottom">
+        <div class="data-status"><span class="pulse"></span><span><b>Modo de demonstração</b><small>Dados guardados neste navegador</small></span></div>
+        <button class="nav-item" data-page="settings"><span>⚙</span> Definições</button>
+        <div class="profile"><div class="profile-avatar">AG</div><div><b>Administrador</b><small>Gestor da exploração</small></div><span class="dots">•••</span></div>
+      </div>
+    </aside>
+
+    <main class="main-content">
+      <header class="topbar">
+        <button class="mobile-menu" id="mobileMenu" aria-label="Abrir menu">☰</button>
+        <div class="breadcrumb"><span>Exploração</span><i>/</i><b id="crumbCurrent">Visão geral</b></div>
+        <div class="top-actions">
+          <span class="live-date" id="todayLabel"></span>
+          <button class="icon-button" id="refreshWeather" title="Actualizar dados meteorológicos">↻</button>
+          <button class="top-avatar" title="Administrador">AG</button>
+        </div>
+      </header>
+
+      <section class="page active" id="page-overview">
+        <div class="welcome-row">
+          <div><div class="eyebrow"><span class="eyebrow-dot"></span> CENTRO DE INTELIGÊNCIA AGRÍCOLA</div><h1>Bom dia, Administrador.</h1><p>Acompanhe a sua exploração e tome decisões com mais informação.</p></div>
+          <button class="btn btn-primary" data-page="map">⌖ Explorar fazenda</button>
+        </div>
+        <div class="demo-banner"><span class="banner-icon">✦</span><div><b>Está a explorar uma fazenda de demonstração</b><p>Os talhões e as campanhas iniciais são fictícios. Pode editar, acrescentar e guardar os seus próprios registos neste navegador.</p></div><button class="banner-close" id="closeBanner">×</button></div>
+        <div class="stats-grid">
+          <article class="stat-card"><div class="stat-top"><span>Área da exploração</span><span class="stat-icon green">⌖</span></div><div class="stat-value" id="statArea">100 <small>ha</small></div><div class="stat-foot">Área total dos talhões registados</div></article>
+          <article class="stat-card"><div class="stat-top"><span>Talhões registados</span><span class="stat-icon blue">▧</span></div><div class="stat-value" id="statFields">6</div><div class="stat-foot">Parcelas acompanhadas</div></article>
+          <article class="stat-card"><div class="stat-top"><span>Campanhas registadas</span><span class="stat-icon gold">◷</span></div><div class="stat-value" id="statCampaigns">4</div><div class="stat-foot">Histórico de produção</div></article>
+          <article class="stat-card"><div class="stat-top"><span>Culturas activas</span><span class="stat-icon violet">❋</span></div><div class="stat-value" id="statCrops">3</div><div class="stat-foot">Culturas actualmente registadas</div></article>
+        </div>
+        <section class="farm-reading panel" aria-live="polite">
+          <div class="farm-reading-head"><div><span class="eyebrow">LEITURA SIMPLES DA EXPLORAÇÃO</span><h2 id="farmStatusTitle">A preparar o resumo da exploração…</h2><p id="farmStatusText">O AgroVision vai organizar os registos e indicar o próximo passo.</p></div><span class="farm-status-pill" id="farmStatusPill">A analisar</span></div>
+          <div class="farm-reading-grid"><div><small>O que sabemos</small><b id="farmKnown">A carregar registos…</b></div><div><small>O que falta confirmar</small><b id="farmMissing">A analisar dados…</b></div><div><small>Próxima acção recomendada</small><b id="farmNext">A preparar sugestão…</b></div></div>
+          <div class="farm-reading-actions"><button class="btn btn-primary" data-page="fields">Completar dados dos talhões</button><button class="btn btn-secondary" data-page="monitoring">Consultar monitorização</button></div>
+          <p class="farm-reading-foot">Este resumo avalia a qualidade dos registos disponíveis. Não é um diagnóstico da cultura. Dados demonstrativos ou estimativas são identificados e devem ser confirmados no terreno.</p>
+        </section>
+        <div class="quick-start panel"><div><span class="eyebrow">COMECE POR AQUI</span><h2>Primeiros passos no AgroVision</h2><p>Complete estas etapas para transformar o painel numa ferramenta útil para a sua exploração.</p></div><div class="quick-steps"><div><span>1</span><b>Registe a fazenda</b><small>Confirme nome, região e coordenadas em Definições.</small></div><div><span>2</span><b>Crie os talhões</b><small>Adicione área, cultura, solo e fonte de água.</small></div><div><span>3</span><b>Desenhe os limites</b><small>Use o Mapa inteligente para delimitar cada parcela.</small></div><div><span>4</span><b>Analise e compare</b><small>Consulte clima, NDVI e observações de campo.</small></div></div></div>
+        <div class="content-grid overview-grid">
+          <article class="panel map-panel">
+            <div class="panel-heading"><div><h2>Vista da exploração</h2><p>Localização e distribuição dos talhões</p></div><button class="text-button" data-page="map">Abrir mapa <span>↗</span></button></div>
+            <div id="overviewMap" class="map map-small"></div>
+            <div class="map-legend"><span><i class="legend-dot maize"></i> Milho</span><span><i class="legend-dot beans"></i> Feijão</span><span><i class="legend-dot soy"></i> Soja</span><span><i class="legend-dot empty"></i> Em preparação</span></div>
+          </article>
+          <article class="panel weather-panel">
+            <div class="panel-heading"><div><h2>Condições meteorológicas</h2><p id="weatherLocation">Região da fazenda · Angola</p></div><span class="source-tag">NASA POWER</span></div>
+            <div class="weather-main"><div><div class="weather-temp" id="weatherTemp">--°</div><div class="weather-desc" id="weatherDesc">A consultar dados…</div></div><div class="weather-symbol">☀</div></div>
+            <div class="weather-details"><div><span>Precipitação</span><b id="weatherRain">-- mm</b></div><div><span>Radiação solar</span><b id="weatherSolar">--</b></div><div><span>Humidade relativa</span><b id="weatherHumidity">--</b></div></div>
+            <div class="weather-note" id="weatherNote">Os dados serão consultados na NASA POWER. A disponibilidade depende da ligação à Internet.</div>
+          </article>
+        </div>
+        <div class="content-grid lower-grid">
+          <article class="panel">
+            <div class="panel-heading"><div><h2>Talhões em destaque</h2><p>Acesso rápido às parcelas</p></div><button class="text-button" data-page="fields">Ver todos ↗</button></div>
+            <div class="field-list" id="overviewFieldList"></div>
+          </article>
+          <article class="panel insight-panel">
+            <div class="panel-heading"><div><h2>Observação AgroVision</h2><p>Análise demonstrativa</p></div><span class="sparkle">✦</span></div>
+            <div class="insight-card"><span class="insight-label">PONTO DE ATENÇÃO</span><h3>Conheça o histórico antes da próxima campanha.</h3><p>Registe a cultura anterior, a produção e as condições observadas em cada talhão. Esses dados ajudam a comparar estratégias com mais rigor.</p><button class="text-button" data-page="campaigns">Registar campanha ↗</button></div>
+          </article>
+        </div>
+      </section>
+
+      <section class="page" id="page-map">
+        <div class="page-heading"><div><div class="eyebrow">EXPLORAÇÃO AGRÍCOLA</div><h1>Mapa inteligente</h1><p>Explore a fazenda, seleccione talhões e consulte a sua informação.</p></div><button class="btn btn-primary" id="addFieldMap">＋ Novo talhão</button></div>
+        <div class="map-toolbar"><div class="map-tabs"><button class="map-tab active" data-layer="street">Mapa</button><button class="map-tab" data-layer="satellite">Imagem de satélite</button></div><div class="map-hint">Seleccione um talhão ou desenhe os limites da sua parcela.</div></div><div class="draw-toolbar" id="drawToolbar" hidden><div><b id="drawStatus">Modo de desenho activo</b><small>Clique no mapa para adicionar cada canto do terreno. Use pelo menos 3 pontos.</small><strong id="drawArea">Área calculada: —</strong></div><div class="draw-actions"><button class="btn btn-secondary" id="undoVertex">↶ Desfazer ponto</button><button class="btn btn-secondary" id="cancelDrawing">Cancelar</button><button class="btn btn-primary" id="finishDrawing">Concluir desenho</button></div></div>
+        <div class="map-layout"><div id="mainMap" class="map map-large"></div><aside class="panel map-detail" id="mapDetail"><div class="empty-detail"><div class="empty-icon">⌖</div><h3>Explore a sua fazenda</h3><p>Seleccione um dos talhões no mapa para consultar a cultura, a área e o histórico.</p></div></aside></div>
+        <div class="map-disclaimer">As imagens de satélite são uma camada cartográfica de referência de terceiros, não imagens ao vivo. A actualização e a resolução variam por região.</div>
+      </section>
+
+      <section class="page" id="page-fields">
+        <div class="page-heading"><div><div class="eyebrow">PASSAPORTE DIGITAL</div><h1>Os meus talhões</h1><p>Cada parcela guarda a sua própria história agrícola.</p></div><button class="btn btn-primary" id="addField">＋ Adicionar talhão</button></div>
+        <div class="toolbar"><div class="search-box"><span>⌕</span><input id="fieldSearch" placeholder="Pesquisar talhão ou cultura…"></div><span class="result-count" id="fieldCount">6 talhões</span></div>
+        <div class="field-cards" id="fieldCards"></div>
+      </section>
+
+      <section class="page" id="page-monitoring">
+        <div class="page-heading"><div><div class="eyebrow">OBSERVAÇÃO DA TERRA</div><h1>Monitorização por talhão</h1><p>Consulte os dados ambientais para a localização de uma parcela específica.</p></div><button class="btn btn-secondary" id="refreshMonitoring">↻ Actualizar dados</button></div>
+        <article class="panel monitor-selector-panel"><div class="monitor-select-wrap"><label for="monitorFieldSelect">Talhão a monitorizar</label><select id="monitorFieldSelect"></select><span id="monitorFieldLocation" class="small-note">Seleccione um talhão para consultar a sua localização.</span></div><div class="monitor-source-note"><b>Fonte meteorológica: NASA POWER</b><span>Os valores são estimativas de uma grelha regional; talhões próximos podem receber os mesmos dados.</span></div></article>
+        <div class="monitor-grid">
+          <article class="panel"><div class="panel-heading"><div><h2>Condições meteorológicas</h2><p id="monitorDateLabel">Dados diários mais recentes disponíveis</p></div><span class="source-tag">NASA POWER</span></div><div class="monitor-weather extended"><div><span class="big-metric" id="monitorTemp">--°C</span><small>Temperatura média</small></div><div><span class="big-metric" id="monitorRain">-- mm</span><small>Precipitação diária</small></div><div><span class="big-metric" id="monitorHumidity">--%</span><small>Humidade relativa do ar</small></div><div><span class="big-metric" id="monitorWind">-- km/h</span><small>Vento a 2 m</small></div><div><span class="big-metric" id="monitorSolar">--</span><small>Radiação solar</small></div><div><span class="big-metric" id="monitorTempRange">-- / --°</span><small>Mínima / máxima</small></div></div><div class="chart-wrap"><canvas id="climateChart"></canvas></div><div class="small-note" id="climateStatus">A aguardar selecção de talhão…</div></article>
+          <article class="panel earth-observation-panel"><div class="panel-heading"><div><h2>Observação da Terra por satélite</h2><p>Visualizações NASA sobre a região do talhão seleccionado</p></div><span class="source-tag">NASA GIBS</span></div><div class="earth-controls"><label>Produto de satélite<select id="earthLayerSelect"><option value="MODIS_Terra_NDVI_8Day">MODIS Terra / NDVI — vigor da vegetação (250 m)</option><option value="SMAP_L3_Passive_Enhanced_Day_Soil_Moisture">SMAP — humidade superficial do solo (9 km)</option><option value="IMERG_Precipitation_Rate">GPM IMERG — taxa de precipitação</option></select></label><label>Data da camada<input id="earthObservationDate" type="date"></label><button class="btn btn-primary" id="applyEarthLayer" type="button">Aplicar camada</button><button class="btn btn-secondary" id="clearEarthLayer" type="button">Limpar camada</button></div><div class="satellite-preview earth-map" id="satellitePreview"></div><div class="earth-layer-info"><b id="earthLayerTitle">MODIS Terra / NDVI — vegetação</b><span id="earthLayerStatus" role="status">A preparar camada NASA…</span><p id="earthLayerDescription">O NDVI é uma visualização do vigor relativo da vegetação. Não identifica sozinho a causa de um problema.</p></div><div class="earth-resolution-note" id="earthResolutionNote">MODIS Terra: resolução nativa aproximada de 250 m; composição de 8 dias e atraso de processamento.</div><div class="earth-links"><a href="https://worldview.earthdata.nasa.gov/" target="_blank" rel="noopener">Abrir NASA Worldview ↗</a><a href="https://nasa-gibs.github.io/gibs-api-docs/available-visualizations/" target="_blank" rel="noopener">Catálogo de camadas NASA ↗</a></div></article>
+        </div>
+        <div class="monitor-grid secondary-monitor-grid">
+          <article class="panel"><div class="panel-heading"><div><h2>Análise NDVI do talhão</h2><p>Interpretação da camada MODIS seleccionada</p></div><span class="source-tag">MODIS · 250 m</span></div><div class="ndvi-summary"><div><span class="big-metric" id="ndviFieldMean">—</span><small>NDVI médio calculado</small></div><div><span class="status-pill pending" id="ndviStatsStatus">A aguardar análise</span></div></div>
+            <div class="ndvi-controls"><label>Data pretendida <input id="ndviAnalysisDate" type="date"></label><label>Nuvens máximas (%) <input id="ndviCloudMax" type="number" min="0" max="100" value="35"></label><button class="btn btn-primary" id="runNdviAnalysis" type="button">Calcular NDVI real</button></div>
+            <div class="ndvi-stats-grid"><div><b id="ndviMin">—</b><small>Mínimo</small></div><div><b id="ndviMax">—</b><small>Máximo</small></div><div><b id="ndviPixels">—</b><small>Píxeis válidos</small></div><div><b id="ndviCoverage">—</b><small>Cobertura válida</small></div></div>
+            <div class="ndvi-controls compare-controls"><label>Comparar com data anterior <input id="ndviBeforeDate" type="date"></label><button class="btn btn-secondary" id="compareNdviDates" type="button">Comparar datas</button></div>
+            <p class="small-note" id="ndviFieldExplanation">Para calcular, seleccione um talhão com limites geográficos desenhados e inicie o backend local do AgroVision. A análise usa Sentinel-2 L2A B04/B08 e máscara SCL.</p>
+            <div id="ndviClassBreakdown" class="ndvi-class-breakdown"></div><div id="ndviComparisonResult" class="ndvi-comparison-result" aria-live="polite"></div>
+            <div class="earth-resolution-note">Sentinel-2 L2A · resolução de 10 m. A selecção de píxeis é feita pelo centro do píxel dentro do polígono; a média apresentada é dos píxeis válidos. O resultado depende da disponibilidade de imagem e cobertura de nuvens.</div></article>
+          <article class="panel"><div class="panel-heading"><div><h2>Sinais que merecem verificação</h2><p>Alertas preliminares com base no clima e nas observações registadas</p></div><span class="source-tag">Apoio à inspecção</span></div><div id="fieldAnomalyList" class="anomaly-list"><p class="small-note">A aguardar dados do talhão.</p></div><div class="callout warning-callout">Estes sinais não diagnosticam pragas, doenças ou stress. Servem para indicar onde vale a pena inspeccionar a cultura no terreno.</div></article>
+        </div>
+        <div class="monitor-grid secondary-monitor-grid">
+          <article class="panel"><div class="panel-heading"><div><h2>Indicadores de água no solo</h2><p>Estimativas regionais NASA POWER / SMAP L4 e visualização SMAP</p></div><span class="source-tag">NASA POWER</span></div><div class="monitor-weather extended soil-moisture-metrics"><div><span class="big-metric" id="monitorSoilTop">—</span><small>Humidade superficial estimada</small></div><div><span class="big-metric" id="monitorSoilRoot">—</span><small>Humidade na zona radicular</small></div><div><span class="big-metric" id="monitorRain7">—</span><small>Chuva acumulada em 7 dias</small></div></div><p class="small-note" id="soilMoistureStatus">A aguardar dados meteorológicos.</p><div class="chart-wrap"><canvas id="soilMoistureChart"></canvas></div><div class="callout warning-callout">GWETTOP e GWETROOT são estimativas modeladas da humidade do solo em escala regional, não medições directas. A camada SMAP continua disponível para visualização no mapa, mas não fornece aqui uma média numérica exacta dentro do polígono.</div></article>
+          <article class="panel"><div class="panel-heading"><div><h2>Observações de campo</h2><p>Registe o que foi observado fisicamente neste talhão.</p></div></div><form id="fieldObservationForm"><label>Humidade do solo observada<select id="observedMoisture"><option value="">Não avaliada</option><option>Seco</option><option>Moderado</option><option>Húmido</option><option>Encharcado</option></select></label><label>Estado da cultura<select id="observedCropState"><option value="">Não avaliado</option><option>Bom</option><option>Regular</option><option>Fraco</option><option>Com sinais de stress</option></select></label><label>Pragas, doenças ou outras observações<textarea id="observedNotes" rows="3" placeholder="Descreva o que observou no terreno…"></textarea></label><button class="btn btn-primary" type="submit">Guardar observação</button></form><div id="latestObservation" class="small-note">Ainda não existem observações registadas para este talhão.</div></article>
+        </div>
+      </section>
+
+      <section class="page" id="page-simulator">
+        <div class="page-heading"><div><div class="eyebrow">APOIO À DECISÃO</div><h1>Simulador de culturas</h1><p>Compare sequências de culturas usando o perfil do solo, a água e o histórico registado.</p></div><span class="source-tag">Modelo demonstrativo</span></div>
+        <div class="sim-layout"><article class="panel sim-form"><h2>Configurar simulação</h2><p class="panel-sub">Escolha o talhão e as estratégias que pretende comparar.</p><label>Talhão<select id="simField"></select></label><label>Condição do solo<select id="soilType"><option value="auto">Usar perfil do talhão</option><option value="medium">Franco / média</option><option value="sandy">Arenoso</option><option value="clayey">Argiloso</option><option value="unknown">Desconhecida</option></select></label><label>Disponibilidade de água<select id="waterLevel"><option value="auto">Usar informação do talhão</option><option value="medium">Moderada</option><option value="low">Limitada</option><option value="high">Boa disponibilidade</option></select></label><div class="sim-field-context" id="simFieldContext">Seleccione um talhão para carregar o seu histórico e perfil.</div><div class="strategy-input"><b>Estratégias a comparar</b><label class="check-row"><input type="checkbox" class="strategy-check" value="A" checked><span><b>Estratégia A</b><small>Milho → Milho → Milho</small></span></label><label class="check-row"><input type="checkbox" class="strategy-check" value="B" checked><span><b>Estratégia B</b><small>Milho → Feijão → Milho</small></span></label><label class="check-row"><input type="checkbox" class="strategy-check" value="C" checked><span><b>Estratégia C</b><small>Feijão → Milho → Cobertura</small></span></label></div><button class="btn btn-primary full-btn" id="runSimulation">✦ Comparar estratégias</button></article><article class="panel sim-results" id="simResults"><div class="empty-detail"><div class="empty-icon">⌁</div><h3>A sua análise aparecerá aqui</h3><p>Configure o cenário e compare as vantagens, limitações e pontos a investigar em cada estratégia.</p></div></article></div><div class="callout warning-callout">Este simulador é um protótipo educativo de apoio à decisão. As classificações são heurísticas ilustrativas, não previsões de rendimento nem recomendações agronómicas validadas. Antes de plantar, confirme as condições com um técnico agrícola local.</div>
+      </section>
+
+      <section class="page" id="page-campaigns">
+        <div class="page-heading"><div><div class="eyebrow">MEMÓRIA DA EXPLORAÇÃO</div><h1>Campanhas agrícolas</h1><p>Registe o que foi plantado e compare os resultados reais.</p></div><button class="btn btn-primary" id="addCampaign">＋ Registar campanha</button></div>
+        <div class="stats-grid campaign-stats"><article class="stat-card"><div class="stat-top"><span>Campanhas registadas</span><span class="stat-icon green">▤</span></div><div class="stat-value" id="campaignTotal">4</div><div class="stat-foot">Registos no histórico local</div></article><article class="stat-card"><div class="stat-top"><span>Produção registada</span><span class="stat-icon gold">◒</span></div><div class="stat-value" id="productionTotal">-- <small>t</small></div><div class="stat-foot">Soma dos registos disponíveis</div></article><article class="stat-card"><div class="stat-top"><span>Última campanha</span><span class="stat-icon blue">◷</span></div><div class="stat-value compact" id="lastCampaign">2025/26</div><div class="stat-foot">Campanha mais recente registada</div></article></div>
+        <article class="panel"><div class="panel-heading"><div><h2>Histórico de campanhas</h2><p>Produção e observações por talhão</p></div></div><div class="table-wrap"><table><thead><tr><th>Campanha</th><th>Talhão</th><th>Cultura</th><th>Área</th><th>Produção</th><th>Custos</th><th>Problemas / observações</th><th></th></tr></thead><tbody id="campaignTable"></tbody></table></div></article>
+      </section>
+
+      <section class="page" id="page-assistant">
+        <div class="page-heading"><div><div class="eyebrow">INTELIGÊNCIA AGRÍCOLA</div><h1>Assistente AgroVision</h1><p>Faça perguntas sobre os registos da sua exploração.</p></div><span class="source-tag neutral">Modo local demonstrativo</span></div>
+        <div class="assistant-layout"><article class="panel chat-panel"><div class="chat-head"><div class="assistant-avatar">✳</div><div><b>AgroVision Assistente</b><small><span class="pulse"></span> Consulta os dados locais da fazenda</small></div></div><div class="chat-messages" id="chatMessages"><div class="chat-bubble bot">Olá! Posso ajudar a consultar os talhões, culturas registadas, campanhas e dados meteorológicos disponíveis. Experimente uma das perguntas abaixo.</div></div><div class="suggestions"><button class="suggestion">Que culturas tenho registadas?</button><button class="suggestion">Qual foi a produção do Talhão A?</button><button class="suggestion">Como funciona a rotação de culturas?</button></div><form id="chatForm" class="chat-input"><input id="chatInput" placeholder="Escreva a sua pergunta…" autocomplete="off"><button class="send-btn" aria-label="Enviar">↑</button></form></article><aside class="panel assistant-side"><h3>O que posso consultar?</h3><div class="assistant-capability"><span>▧</span><div><b>Talhões</b><p>Área, cultura e histórico.</p></div></div><div class="assistant-capability"><span>◷</span><div><b>Campanhas</b><p>Registos de plantação e colheita.</p></div></div><div class="assistant-capability"><span>☀</span><div><b>Clima</b><p>Últimos dados consultados da NASA POWER.</p></div></div><div class="callout">Este assistente usa respostas locais predefinidas. Ainda não está ligado a um modelo de IA externo nem ao WhatsApp.</div></aside></div>
+      </section>
+
+      <section class="page" id="page-reports">
+        <div class="page-heading"><div><div class="eyebrow">ANÁLISE DA EXPLORAÇÃO</div><h1>Relatórios</h1><p>Resumo dos registos disponíveis nesta demonstração.</p></div><button class="btn btn-secondary" id="exportData">↓ Exportar dados JSON</button></div>
+        <div class="report-grid"><article class="panel"><h2>Distribuição de culturas</h2><p class="panel-sub">Talhões por cultura actualmente registada</p><div id="cropDistribution" class="distribution"></div></article><article class="panel"><h2>Dados da exploração</h2><p class="panel-sub">Resumo do estado actual</p><div id="reportSummary" class="report-summary"></div></article></div>
+      </section>
+
+      <section class="page" id="page-settings">
+        <div class="page-heading"><div><div class="eyebrow">CONFIGURAÇÃO</div><h1>Definições</h1><p>Localização, armazenamento e dados desta demonstração.</p></div></div>
+        <div class="settings-grid"><article class="panel settings-card"><h2>Localização da fazenda</h2><p class="panel-sub">Coordenadas usadas para consultar NASA POWER e centrar o mapa.</p><label>Nome da exploração<input id="farmName" value="Minha Fazenda"></label><div class="two-inputs"><label>Latitude<input id="farmLat" type="number" step="0.0001" value="-9.5402"></label><label>Longitude<input id="farmLon" type="number" step="0.0001" value="16.3410"></label></div><label>Região / província<input id="farmRegion" value="Malanje, Angola"></label><button class="btn btn-primary" id="saveSettings">Guardar configuração</button></article><article class="panel settings-card"><h2>Armazenamento local</h2><p class="panel-sub">Os dados são guardados no LocalStorage deste navegador e computador.</p><div class="storage-status"><span class="storage-icon">▣</span><div><b>LocalStorage</b><small>Sem base de dados online</small></div><span class="status-pill">Activo</span></div><button class="btn btn-secondary full-btn" id="resetDemo">Restaurar dados de demonstração</button><p class="small-note">A limpeza dos dados do navegador pode apagar os registos. Exporte uma cópia JSON antes de mudar de computador ou limpar os dados.</p></article><article class="panel settings-card"><h2>Fontes de dados</h2><div class="source-row"><div><b>NASA POWER</b><small>Meteorologia diária e histórica</small></div><span class="status-pill">Sem chave</span></div><div class="source-row"><div><b>NASA MODIS / NDVI via GIBS</b><small>Camada de vigor da vegetação no mapa</small></div><span class="status-pill">GIBS</span></div><div class="source-row"><div><b>NASA SMAP via GIBS</b><small>Visualização de humidade superficial do solo</small></div><span class="status-pill">GIBS</span></div><div class="source-row"><div><b>NASA GPM IMERG via GIBS</b><small>Visualização da taxa de precipitação</small></div><span class="status-pill">GIBS</span></div><p class="small-note">NDVI é apresentado como camada visual; a média por polígono e a série temporal ainda exigem processamento raster geoespacial. A humidade superficial e radicular usa os parâmetros SFMC/RZMC da NASA POWER com fonte SMAP L4 quando disponível. Não coloque tokens Earthdata no frontend.</p></article></div>
+      </section>
+
+      <footer class="footer"><span>© 2026 AgroVision Angola</span><span>Ciência • Agricultura • Tecnologia</span><span>Protótipo funcional · Sem base de dados</span></footer>
+    </main>
+  </div>
+
+  <dialog id="fieldDialog" class="modal"><form method="dialog" id="fieldForm"><div class="modal-head"><div><div class="eyebrow">PASSAPORTE DIGITAL</div><h2 id="fieldDialogTitle">Adicionar talhão</h2></div><button class="modal-close" value="cancel" aria-label="Fechar">×</button></div><input type="hidden" id="fieldId"><label>Nome do talhão<input id="fieldName" required placeholder="Ex.: Talhão G"></label><div class="two-inputs"><label>Área (hectares)<input id="fieldArea" type="number" min="0.01" step="0.01" required><small id="fieldAreaHelp" class="field-area-help">Introduza a área ou desenhe o talhão no mapa para calcular automaticamente.</small></label><label>Cultura actual<select id="fieldCrop"><option>Milho</option><option>Feijão</option><option>Soja</option><option>Mandioqueira</option><option>Arroz</option><option>Cultura de cobertura</option><option>Em preparação</option></select></label></div><label>Descrição / tipo de solo<input id="fieldSoil" placeholder="Ex.: Solo franco-arenoso"></label>
+  <div class="two-inputs"><label>Textura do solo<select id="fieldSoilType"><option value="unknown">Por caracterizar</option><option value="sandy">Arenoso</option><option value="loamy">Franco</option><option value="clayey">Argiloso</option></select></label><label>pH do solo (se conhecido)<input id="fieldPH" type="number" min="0" max="14" step="0.1" placeholder="Ex.: 6.2"></label></div>
+  <div class="two-inputs"><label>Drenagem<select id="fieldDrainage"><option>Não avaliada</option><option>Boa</option><option>Moderada</option><option>Fraca</option></select></label><label>Fonte de água<select id="fieldWater"><option>Não registada</option><option>Chuva</option><option>Rio / riacho</option><option>Furo / poço</option><option>Reservatório</option><option>Irrigação mista</option></select></label></div>
+  <label>Histórico de pragas / doenças<input id="fieldPests" placeholder="Ex.: Lagarta-do-cartucho observada em 2025"></label><label>Fertilização e maneio habitual<input id="fieldFertilizer" placeholder="Ex.: composto orgânico; adubação registada"></label><label>Notas gerais do talhão<textarea id="fieldNotes" rows="2" placeholder="Características, intervenções e observações permanentes…"></textarea></label><label>Data de plantação actual<input id="fieldDate" type="date"></label><div class="modal-actions"><button class="btn btn-secondary" value="cancel">Cancelar</button><button class="btn btn-primary" id="saveField" value="default">Guardar talhão</button></div></form></dialog>
+
+  <dialog id="campaignDialog" class="modal"><form method="dialog" id="campaignForm"><div class="modal-head"><div><div class="eyebrow">HISTÓRICO AGRÍCOLA</div><h2>Registar campanha</h2></div><button class="modal-close" value="cancel">×</button></div><label>Talhão<select id="campaignField"></select></label><div class="two-inputs"><label>Campanha<input id="campaignYear" required placeholder="2026/2027"></label><label>Cultura<select id="campaignCrop"><option>Milho</option><option>Feijão</option><option>Soja</option><option>Mandioqueira</option><option>Arroz</option><option>Cultura de cobertura</option></select></label></div><div class="two-inputs"><label>Área (ha)<input id="campaignArea" type="number" min="0" step="0.1" required></label><label>Produção total (toneladas)<input id="campaignYield" type="number" min="0" step="0.01" placeholder="Opcional"></label></div><div class="two-inputs"><label>Data de plantação<input id="campaignPlanting" type="date"></label><label>Data de colheita<input id="campaignHarvest" type="date"></label></div><div class="two-inputs"><label>Custos totais (Kz)<input id="campaignCost" type="number" min="0" step="1" placeholder="Opcional"></label><label>Insumos utilizados<input id="campaignInputs" placeholder="Sementes, adubo…"></label></div><label>Irrigação / água aplicada<input id="campaignIrrigation" placeholder="Ex.: chuva; rega por aspersão; volume se conhecido"></label><label>Pragas, doenças e problemas<textarea id="campaignProblems" rows="2" placeholder="O que afectou a campanha?"></textarea></label><label>Observações e resultados<textarea id="campaignNotes" rows="3" placeholder="Chuva, irrigação, operações, qualidade da colheita…"></textarea></label><div class="modal-actions"><button class="btn btn-secondary" value="cancel">Cancelar</button><button class="btn btn-primary" id="saveCampaign" value="default">Guardar registo</button></div></form></dialog>
+
+
+  <dialog id="passportDialog" class="modal passport-modal"><div class="modal-head"><div><div class="eyebrow">PASSAPORTE VIVO DO TALHÃO</div><h2 id="passportTitle">Talhão</h2></div><button class="modal-close" id="closePassport" aria-label="Fechar">×</button></div><div id="passportContent"></div><div class="modal-actions"><button class="btn btn-secondary" id="passportMonitor">Monitorizar talhão</button><button class="btn btn-primary" id="passportEdit">Editar dados</button></div></dialog>
+
+  <div class="toast" id="toast"></div>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="config.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
